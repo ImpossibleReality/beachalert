@@ -26,14 +26,15 @@ def getSafetyReport(lat, lon):
             'name': beach,
             'primaryToxin': 'algae',
             'distance': distance,
-            'safetyLevel': 'safe' if data[beach]['current_toxin_level'] != '<MDL' else 'safe'
+            'safetyLevel': 'unsafe' if data[beach]['current_toxin_level'] != '<MDL' else 'safe'
         })
         if data[beach]['current_toxin_level'] == '<MDL':
             continue
-        safetyScore += (data[beach]['current_toxin_level'] - data[beach]['max_acceptable_toxin_level']) / distance
+        safetyScore += (float(data[beach]['current_toxin_level']) - data[beach]['max_acceptable_toxin_level']) / distance
 
     return {
         'safetyScore': safetyScore,
+        'primaryToxin': 'algae',
         'safetyLevel': 'unsafe' if safetyScore > 0.5 else 'safe',
         'beachesNearby': beachesNearby
     }
@@ -47,7 +48,7 @@ def getBeachGeoJson():
         features.append(Feature(geometry=Point((data[beach]['location'][1], data[beach]['location'][0])),
                                 properties = {
                                     'id': beach,
-                                    'mag': 1 if data[beach]['current_toxin_level'] == "<MDL" else int(data[beach]['current_toxin_level']) + 1
+                                    'mag': 1 if data[beach]['current_toxin_level'] == "<MDL" else float(data[beach]['current_toxin_level']) + 1
                                 }))
 
     return FeatureCollection(features)

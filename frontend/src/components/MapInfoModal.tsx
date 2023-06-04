@@ -7,7 +7,7 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonModal, IonRow, IonSpinner, IonTitle,
+  IonModal, IonRow, IonSkeletonText, IonSpinner, IonThumbnail, IonTitle,
   IonToolbar
 } from "@ionic/react";
 import BeachIcon from "./BeachIcon";
@@ -17,6 +17,7 @@ import { BASE_API_URL } from "../main";
 import './MapInfoModal.css'
 import SunIcon from "./SunIcon";
 import WarningIcon from "./WarningIcon";
+import { compassOutline, medkitOutline } from "ionicons/icons";
 
 interface NearbyBeach {
   name: string,
@@ -41,7 +42,10 @@ async function getScores(long: number, lat: number): Promise<ScoreData> {
       'Content-Type': 'application/json'
     }
   })
-  return res.data
+  const data: ScoreData = res.data
+
+  data.beachesNearby = data.beachesNearby.sort((a, b) => a.distance - b.distance)
+  return data
 }
 
 const MapInfoModal: React.FC<{lat: number | null, long: number | null}> = ({lat, long}) => {
@@ -60,7 +64,7 @@ const MapInfoModal: React.FC<{lat: number | null, long: number | null}> = ({lat,
     }
     getScores(long, lat).then(setData);
     // @ts-ignore
-    modal.current.setCurrentBreakpoint(0.3);
+    modal.current.setCurrentBreakpoint(0.35);
   }, [lat, long])
 
   function onBreakPoint(e) {
@@ -88,27 +92,32 @@ const MapInfoModal: React.FC<{lat: number | null, long: number | null}> = ({lat,
     }
   }
 
+  function onClick(e) {
+    modal.current.setCurrentBreakpoint(1)
+  }
+
   return (
     <>
       <IonModal isOpen={lat !== null && long !== null}
                 handle={false}
                 ref={modal}
+                onClick={onClick}
                 onIonBreakpointDidChange={onBreakPoint}
-                initialBreakpoint={0.3} breakpoints={[atTop ? 0.3 : 1,1]} animated={!atTop} backdropBreakpoint={0.3} backdropDismiss={false} style={{"--height": "80%"}} className={"map-modal"}>
+                initialBreakpoint={0.35} breakpoints={[atTop ? 0.35 : 1,1]} animated={!atTop} backdropBreakpoint={0.35} backdropDismiss={false} style={{"--height": "80%"}} className={"map-modal"}>
         <div className={"scroll-container " + (canScroll ? 'can-scroll' : '')} onScroll={onScroll} onTouchMove={onTouchMove}>
-          <h2></h2>
           {data ?
-            <IonList>
-              {data!.safetyLevel === 'safe' ?
-              <div className={"status-card status-safe"}>
-                <div>
-                  <h2>Safe to Swim</h2>
-                  <p>No current toxins. Enjoy your swim!</p>
+            <><h1 className={"modal-header"}>{data.beachesNearby[0].name}</h1>
+              <IonList>
+              {data!.safetyLevel === "safe" ?
+                <div className={"status-card status-safe"}>
+                  <div>
+                    <h2>Safe to Swim</h2>
+                    <p>No current toxins. Enjoy your swim!</p>
+                  </div>
+                  <div>
+                    <BeachIcon />
+                  </div>
                 </div>
-                <div>
-                  <SunIcon />
-                </div>
-              </div>
                 : <div className={"status-card status-unsafe"}>
                   <div>
                     <h2>Swimming is Unsafe!</h2>
@@ -119,35 +128,48 @@ const MapInfoModal: React.FC<{lat: number | null, long: number | null}> = ({lat,
                   </div>
                 </div>}
 
-            {/*  Nearby beach list*/}
-              <IonList lines="none">
-              {data.beachesNearby.map((v) => {return (
-                <IonItem>
-                  <IonCard style={{"width": "100%"}}>
-                    <IonCardHeader>
-                      <IonCardTitle>{v.name}</IonCardTitle>
-                      <IonCardSubtitle>{v.safetyLevel == "safe" ? "Safe to swim" : "Unsafe to swim"}</IonCardSubtitle>
-                    </IonCardHeader>
-                    <IonCardContent>
-                      <IonList>
-                        <IonItem>
-                          <IonIcon name="compass-outline" slot="start"></IonIcon>
-                          <IonLabel>Distance</IonLabel>
-                          <IonLabel slot={"end"}>{v.distance}</IonLabel>
-                        </IonItem>
-                        <IonItem>
-                          <IonIcon name="medkit-outline" slot="start"></IonIcon>
-                          <IonLabel>Primary Toxin</IonLabel>
-                          <IonLabel slot={"end"}>{v.primaryToxin}</IonLabel>
-                        </IonItem>
-                      </IonList>
-                    </IonCardContent>
-                  </IonCard>
-                </IonItem>
-              )})}
-              </IonList>
-            </IonList>
-            : <div className="spinner-container"><BeachIcon /></div>}
+              {/*  Nearby beach list*/}
+                <h2 className={"nearby-header"}>Nearby beaches</h2>
+                {data.beachesNearby.slice(1).filter((v) => (v.distance < 10)).map((v) => {
+                  return (
+                      <div style={{ "border-radius": "1rem", "margin-right": "1rem", "margin-left": "1rem", "margin-bottom": "1rem", "box-shadow": "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px" }} className={"nearby-card"}>
+                        <IonCardHeader>
+                          <IonCardTitle>{v.name}</IonCardTitle>
+                          <IonCardSubtitle style={{color: v.safetyLevel == "safe" ? "#3a3" : "#a33"}}>{v.safetyLevel == "safe" ? "Safe to swim" : "Unsafe to swim"}</IonCardSubtitle>
+                        </IonCardHeader>
+                        <IonCardContent>
+                          <IonList>
+                            <IonItem>
+                              <IonIcon icon={compassOutline} style={{"margin-left": "-1rem", "color": "#ccc"}} slot="start"></IonIcon>
+                              <IonLabel>Distance</IonLabel>
+                              <IonLabel slot={"end"}>{Math.round(v.distance * 100) / 100} miles</IonLabel>
+                            </IonItem>
+                            {v.safetyLevel == "unsafe" ? <IonItem>
+                              <IonIcon icon={medkitOutline} style={{"margin-left": "-1rem", "color": "#ccc"}} slot="start"></IonIcon>
+                              <IonLabel>Primary Toxin</IonLabel>
+                              <IonLabel slot={"end"}>{v.primaryToxin}</IonLabel>
+                            </IonItem> : null
+                            }
+                          </IonList>
+                        </IonCardContent>
+                      </div>
+                  );
+                })}
+            </IonList></>
+            : <>
+              <h1 className={"modal-header"}><IonSkeletonText animated className={"skeletontext skeletonheader"}></IonSkeletonText></h1>
+              <div className={"status-card skeletoncard"}>
+                <div style={{"width": "65%"}}>
+                  <h2><IonSkeletonText animated className={"skeletontext"}></IonSkeletonText></h2>
+                  <p><IonSkeletonText animated className={"skeletontext"} style={{"width": "80%"}}></IonSkeletonText></p>
+                  <p><IonSkeletonText animated className={"skeletontext"} style={{"width": "80%"}}></IonSkeletonText></p>
+                </div>
+                <IonThumbnail slot={"end"} style={{"width": "5rem", "height": "5rem", "margin-right": "0.5rem"}} className={"skeletonthumb"}>
+                  <IonSkeletonText animated></IonSkeletonText>
+                </IonThumbnail>
+              </div>
+              <IonList></IonList>
+            </>}
         </div>
       </IonModal>
     </>

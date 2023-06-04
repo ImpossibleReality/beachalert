@@ -8,6 +8,11 @@
     display: none;
 }
 
+.modal-header {
+    margin-left: 1rem;
+    margin-bottom: 0;
+}
+
 .scroll-container {
     overflow-y: hidden;
     height: 100%;
@@ -32,6 +37,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    transition: background-color 0.2s ease-in-out;
 }
 
 .status-card  h2 {
@@ -47,9 +53,10 @@
 
 }
 
-.status-card .sun-icon {
-    width: 8rem;
-    height: 8rem;
+.status-card .beach-icon {
+    width: 7rem;
+    height: 7rem;
+    margin-top: 0;
 }
 
 .status-card .warning-icon {
@@ -68,7 +75,7 @@
 }
 
 .status-card.status-safe p {
-    color: #daefda;
+    color: #e7f3e7;
 }
 
 .status-unsafe {
@@ -82,4 +89,31 @@
 
 .status-card.status-unsafe p {
     color: #f7dada;
+}
+
+.skeletoncard {
+    background-color: #e8e9ef;
+}
+
+.skeletonthumb {
+    border-radius: 1rem;
+}
+
+.skeletonheader {
+    margin-bottom: 1.3rem;
+    width: 75%;
+}
+
+.nearby-header {
+    margin-left: 1rem;
+    margin-top: 3rem;
+}
+
+.skeletontext {
+    height: 1em;
+    border-radius: 0.4rem;
+}
+
+.skeletonthumb {
+    border-radius: 0.4rem;
 }
