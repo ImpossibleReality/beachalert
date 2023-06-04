@@ -21,6 +21,8 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 import Map from "./pages/Map";
+import { SplashScreen } from '@capacitor/splash-screen';
+
 
 setupIonicReact();
 

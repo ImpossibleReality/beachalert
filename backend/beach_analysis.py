@@ -9,6 +9,12 @@ file = pathlib.Path('BeachAlertData.json')
 with file.open() as f:
     data = json.load(f)
 
+
+file = pathlib.Path('kk.json')
+
+with file.open() as f:
+    kkData = json.load(f)
+
 def getSafetyReport(lat, lon):
     safetyScore = 0.0
 
@@ -32,13 +38,16 @@ def getSafetyReport(lat, lon):
         'beachesNearby': beachesNearby
     }
 
+def getLakeWAPoly():
+    return kkData
+
 def getBeachGeoJson():
     features = []
     for beach in data:
         features.append(Feature(geometry=Point((data[beach]['location'][1], data[beach]['location'][0])),
                                 properties = {
                                     'id': beach,
-                                    'mag': 0 if data[beach]['current_toxin_level'] == "<MDL" else int(data[beach]['current_toxin_level']) * 10
+                                    'mag': 1 if data[beach]['current_toxin_level'] == "<MDL" else int(data[beach]['current_toxin_level']) + 1
                                 }))
 
     return FeatureCollection(features)

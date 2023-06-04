@@ -25,7 +25,7 @@ const Map: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
+      <IonHeader translucent={true} className={"map-header"}>
         <IonToolbar>
           <IonTitle>Beach Alert</IonTitle>
         </IonToolbar>

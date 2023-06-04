@@ -12,8 +12,24 @@ const config: CapacitorConfig = {
     "@capacitor/haptics",
     "@capacitor/keyboard",
     "@capacitor/status-bar",
-    "@capacitor/geolocation"
-  ]
+    "@capacitor/geolocation",
+    "@capacitor/splash-screen"
+  ],
+  plugins: {
+    splashScreen: {
+      launchAutoHide: true,
+      launchShowDuration: 5000,
+      showSpinner: true,
+      launchFadeOutDuration: 1000,
+    },
+  },
+  cordova: {
+    preferences: {
+      LottieFullscreen: "true",
+      LottieHideAfterAnimationEnd: "true",
+      LottieAnimationLocation: "public/assets/beach.json"
+    }
+  },
 };
 
 export default config;

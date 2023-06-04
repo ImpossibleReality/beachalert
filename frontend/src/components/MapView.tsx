@@ -56,8 +56,9 @@ const MapView: React.FC<{
         container: "mapbox",
         style: `mapbox://styles/mapbox/light-v10`,
         center: [-122, 47],
-        zoom: 1,
+        zoom: 2,
       });
+
       let geolocate = new mapboxgl.GeolocateControl({
         positionOptions: {
           enableHighAccuracy: true
@@ -68,6 +69,7 @@ const MapView: React.FC<{
         showAccuracyCircle: true,
       })
       m.addControl(geolocate);
+
       geolocate.on("geolocate", (v) => {
         let e = v as GeolocationPosition;
         if (!marker) {
@@ -75,6 +77,7 @@ const MapView: React.FC<{
           setLocation(p);
         }
       })
+
       m.on("click", (e) => {
         setLocation({ lon: e.lngLat.lng, lat: e.lngLat.lat })
         if (marker) {
@@ -105,8 +108,8 @@ const MapView: React.FC<{
           // console.log(m.getSource('earthquakes'))
 
 
-// Add a geojson point source.
-// Heatmap layers also work with a vector tile source.
+          // Add a geojson point source.
+          // Heatmap layers also work with a vector tile source.
           m.addSource('trees', {
             'type': 'geojson',
             'data': res
@@ -123,8 +126,8 @@ const MapView: React.FC<{
                   'property': 'mag',
                   'type': 'exponential',
                   'stops': [ // TODO: Figure out what this means
-                    [0.5, 0],
-                    [1.5, 500]
+                    [1, 1],
+                    [2, 20]
                   ]
                 },
 // increase intensity as zoom level increases
@@ -134,8 +137,8 @@ const MapView: React.FC<{
                   ['zoom'],
                   0,
                   1,
-                  9,
-                  3
+                  15,
+                  6
                 ],
 // use sequential color palette to use exponentially as the weight increases
                 'heatmap-color': [
@@ -143,30 +146,33 @@ const MapView: React.FC<{
                   ['linear'],
                   ['heatmap-density'],
                   0,
-                  'rgba(33,102,172,0.1)',
-                  0.2,
-                  'rgb(103,169,207)',
-                  0.4,
-                  'rgb(209,229,240)',
-                  0.6,
-                  'rgb(253,219,199)',
-                  0.8,
-                  'rgb(239,138,98)',
+                  'rgba(33,102,172,0)',
                   1,
+                  'rgb(103,169,207)',
+                  1.2,
+                  'rgb(209,229,240)',
+                  1.4,
+                  'rgb(253,219,199)',
+                  1.6,
+                  'rgb(239,138,98)',
+                  1.8,
+                  'rgb(239,138,98)',
+                  2,
                   'rgb(178,24,43)'
                 ],
 // increase radius as zoom increases
                 'heatmap-radius': {
                   'stops': [
-                    [11, 15],
-                    [15, 20]
+                    [2, 10],
+                    [7, 10],
+                    [15, 250]
                   ]
                 },
 // decrease opacity to transition into the circle layer
                 'heatmap-opacity': {
-                  'default': 1,
+                  'default': 0.5,
                   'stops': [
-                    [14, 1],
+                    [14, 0.5],
                     [15, 0]
                   ]
                 }
@@ -196,8 +202,8 @@ const MapView: React.FC<{
                   'property': 'mag',
                   'type': 'exponential',
                   'stops': [
-                    [0, 'rgba(28,255,153, 0.6)'],
-                    [0, 'rgb(255,110,110)'],
+                    [1, 'rgba(24,203,122,0.6)'],
+                    [2, 'rgb(255,110,110)'],
                   ]
                 },
                 'circle-stroke-color': 'white',

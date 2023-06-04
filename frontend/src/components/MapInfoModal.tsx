@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   IonBadge,
   IonButton,
@@ -10,10 +10,13 @@ import {
   IonModal, IonRow, IonSpinner, IonTitle,
   IonToolbar
 } from "@ionic/react";
+import BeachIcon from "./BeachIcon";
 import { CapacitorHttp } from "@capacitor/core";
 import { BASE_API_URL } from "../main";
 
 import './MapInfoModal.css'
+import SunIcon from "./SunIcon";
+import WarningIcon from "./WarningIcon";
 
 interface NearbyBeach {
   name: string,
@@ -28,10 +31,11 @@ interface ScoreData {
   beachesNearby: NearbyBeach[],
   safetyLevel: "safe" | "unsafe",
   safetyScore: number;
+  primaryToxin: string,
 }
 
 async function getScores(long: number, lat: number): Promise<ScoreData> {
-  const res =  await CapacitorHttp.get({
+  const res = await CapacitorHttp.get({
     url: BASE_API_URL + "location?lon=" + long + "&lat=" + lat,
     headers: {
       'Content-Type': 'application/json'
@@ -40,38 +44,80 @@ async function getScores(long: number, lat: number): Promise<ScoreData> {
   return res.data
 }
 
-const MapInfoModal: React.FC<{lat: number, long: number}> = ({lat, long}) => {
+const MapInfoModal: React.FC<{lat: number | null, long: number | null}> = ({lat, long}) => {
   let [data, setData] = useState<ScoreData | null>(null);
   let color = data?.safetyLevel == "safe" ? "success" : "danger";
+
+  let [canScroll, setCanScroll] = useState<boolean>(false);
+  let [atTop, setAtTop] = useState<boolean>(true);
+
+  let modal = useRef(null);
   
   useEffect(() => {
     setData(null);
+    if (lat === null || long === null) {
+      return;
+    }
     getScores(long, lat).then(setData);
+    // @ts-ignore
+    modal.current.setCurrentBreakpoint(0.3);
   }, [lat, long])
+
+  function onBreakPoint(e) {
+    console.log(e)
+    if (e.detail.breakpoint === 1) {
+      setCanScroll( true)
+    } else {
+      setCanScroll(false)
+    }
+  }
+
+  function onScroll(e) {
+    // if scroll is at the top
+    if (e.target.scrollTop === 0) {
+      setAtTop(true)
+      console.log("at top")
+    } else {
+      setAtTop(false)
+    }
+  }
+
+  function onTouchMove(e) {
+    if (!(e.target.scrollTop === 0) && canScroll) {
+      e.stopPropagation();
+    }
+  }
 
   return (
     <>
-      <IonModal isOpen={true}
-                initialBreakpoint={0.3} breakpoints={[0.3, 1]} backdropBreakpoint={0.5} backdropDismiss={false} style={{"--height": "80%"}}>
-        <IonContent>7
+      <IonModal isOpen={lat !== null && long !== null}
+                handle={false}
+                ref={modal}
+                onIonBreakpointDidChange={onBreakPoint}
+                initialBreakpoint={0.3} breakpoints={[atTop ? 0.3 : 1,1]} animated={!atTop} backdropBreakpoint={0.3} backdropDismiss={false} style={{"--height": "80%"}} className={"map-modal"}>
+        <div className={"scroll-container " + (canScroll ? 'can-scroll' : '')} onScroll={onScroll} onTouchMove={onTouchMove}>
+          <h2></h2>
           {data ?
             <IonList>
-              <IonItem>
-                <IonLabel>Safety Level</IonLabel>
-                <IonBadge slot="end" color={color}>{data!.safetyLevel}</IonBadge>
-              </IonItem>
-              <IonItem>
-                <IonLabel>Safety Score</IonLabel>
-                <IonBadge slot="end" color={color}>{data!.safetyScore}</IonBadge>
-              </IonItem>
-              <IonItem>
-                <IonLabel>Latitude</IonLabel>
-                <IonBadge slot="end">{lat}</IonBadge>
-              </IonItem>
-              <IonItem>
-                <IonLabel>Longitude</IonLabel>
-                <IonBadge slot="end">{long}</IonBadge>
-              </IonItem>
+              {data!.safetyLevel === 'safe' ?
+              <div className={"status-card status-safe"}>
+                <div>
+                  <h2>Safe to Swim</h2>
+                  <p>No current toxins. Enjoy your swim!</p>
+                </div>
+                <div>
+                  <SunIcon />
+                </div>
+              </div>
+                : <div className={"status-card status-unsafe"}>
+                  <div>
+                    <h2>Swimming is Unsafe!</h2>
+                    <p>Due to high amounts of {data!.primaryToxin}, swimming in this area is unsafe.</p>
+                  </div>
+                  <div>
+                    <WarningIcon />
+                  </div>
+                </div>}
 
             {/*  Nearby beach list*/}
               <IonList lines="none">
@@ -101,8 +147,8 @@ const MapInfoModal: React.FC<{lat: number, long: number}> = ({lat, long}) => {
               )})}
               </IonList>
             </IonList>
-            : <div className="spinner-container"><IonSpinner/></div>}
-        </IonContent>
+            : <div className="spinner-container"><BeachIcon /></div>}
+        </div>
       </IonModal>
     </>
   );

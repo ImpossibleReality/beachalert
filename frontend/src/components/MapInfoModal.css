@@ -2,5 +2,84 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 7rem;
+}
+
+.modal-handle {
+    display: none;
+}
+
+.scroll-container {
+    overflow-y: hidden;
+    height: 100%;
+    overscroll-behavior-y: none;
+}
+
+.scroll-container.can-scroll {
+    overflow-y: scroll;
+}
+
+.beach-icon {
+    width: 5rem;
+    height: 5rem;
+    margin-top: 4rem;
+}
+
+.status-card {
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    height: 8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.status-card  h2 {
+    font-weight: bolder;
+    margin-top: 0;
+    margin-bottom: 0.3rem;
+    font-size: 1.2rem;
+}
+
+.status-card p {
+    margin-top: 0;
+    margin-bottom: 0;
+
+}
+
+.status-card .sun-icon {
+    width: 8rem;
+    height: 8rem;
+}
+
+.status-card .warning-icon {
+    width: 7rem;
+    height: 7rem;
+}
+
+
+.status-safe {
+    background-color: #04bb04;
+    color: white;
+}
+
+.status-card.status-safe  h2 {
+    color: #daefda;
+}
+
+.status-card.status-safe p {
+    color: #daefda;
+}
+
+.status-unsafe {
+    background-color: #ea4141;
+    color: white;
+}
+
+.status-card.status-unsafe  h2 {
+    color: #f7dada;
+}
+
+.status-card.status-unsafe p {
+    color: #f7dada;
 }

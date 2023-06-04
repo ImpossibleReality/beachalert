@@ -1,5 +1,5 @@
 import flask
-from beach_analysis import getSafetyReport, getAllBeaches, getBeachGeoJson
+from beach_analysis import getSafetyReport, getAllBeaches, getBeachGeoJson, getLakeWAPoly
 
 app = flask.Flask(__name__)     
 
@@ -17,6 +17,10 @@ def get_beaches():
 @app.route('/heatmap', methods=['GET'])
 def get_heatmap():
     return getBeachGeoJson()
+
+@app.route('/lakes.geojson', methods=['GET'])
+def get_lakes():
+    return getLakeWAPoly()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
