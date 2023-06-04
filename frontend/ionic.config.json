@@ -1,0 +1,9 @@
+{
+  "name": "Beach Alert",
+  "integrations": {
+    "capacitor": {
+
+    }
+  },
+  "type": "react-vite"
+}
